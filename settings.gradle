@@ -1,2 +1,3 @@
 rootProject.name = 'data-structure'
 include 'linked-list'
+include 'stack'
