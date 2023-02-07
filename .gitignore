@@ -39,3 +39,4 @@ out/
 .data-structure.iml
 linked-list/gradle
 stack/gradle
+queue/gradle
