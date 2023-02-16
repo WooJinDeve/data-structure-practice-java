@@ -7,7 +7,6 @@ public class Heap<E> implements HeapI<E> {
     private static final int DEFAULT_INITIAL_CAPACITY = 11;
     private int lastPosition;
     private E[] array;
-    private int size;
 
     private final Comparator<? super E> comparator;
 
@@ -16,11 +15,11 @@ public class Heap<E> implements HeapI<E> {
         this.comparator = comparator;
     }
 
-    public Heap(){
+    public Heap() {
         this(DEFAULT_INITIAL_CAPACITY, null);
     }
 
-    public Heap(Comparator<? super E> comparator){
+    public Heap(Comparator<? super E> comparator) {
         this(DEFAULT_INITIAL_CAPACITY, comparator);
     }
 
@@ -31,17 +30,19 @@ public class Heap<E> implements HeapI<E> {
 
     @Override
     public void add(E obj) {
-        if (array.length == size) {
+        if (array.length == lastPosition) {
             grow(array.length * 2);
         }
 
-        array[++lastPosition] = obj;
-        size++;
+        array[lastPosition] = obj;
 
-        if (comparator == null)
+        if (comparator == null) {
             trickleUp(lastPosition, obj);
-        else
+        } else {
             trickleUpComparator(lastPosition, obj, comparator);
+        }
+
+        lastPosition++;
     }
 
     private void grow(int size) {
@@ -89,78 +90,84 @@ public class Heap<E> implements HeapI<E> {
     }
 
     @Override
-    public E remove(){
+    public E remove() {
         E tmp = array[0];
-        swap(0, lastPosition--);
-        if (comparator == null)
+        swap(0, --lastPosition);
+        array[lastPosition] = null;
+        if (comparator == null) {
             trickleDown(0);
-        else
+        } else {
             trickleDownComparator(0, comparator);
+        }
         return tmp;
     }
 
-    private void trickleDown(int parent){
-        int left = 2*parent + 1;
-        int right = 2*parent + 2;
+    private void trickleDown(int parent) {
+        int left = 2 * parent + 1;
+        int right = 2 * parent + 2;
         // 마지막에 왼쪽 자식이 클 때
-        if (left==lastPosition && (((Comparable<E>)array[parent]).compareTo(array[left])<0)){
+        if (array[left] != null && left == lastPosition &&
+                ((Comparable<E>) array[parent]).compareTo(array[left]) < 0) {
             swap(parent, left);
             return;
         }
         // 마지막에 오른쪽 자식이 클 때
-        if (right==lastPosition && (((Comparable<E>)array[parent]).compareTo(array[right])<0)) {
+        if (array[right] != null && right == lastPosition
+                && ((Comparable<E>) array[parent]).compareTo(array[right]) < 0) {
             swap(parent, right);
             return;
         }
         // 범위를 초과할 경우 재귀 종료
-        if (left >= lastPosition || right >= lastPosition)
+        if (left >= lastPosition || right >= lastPosition) {
             return;
-
-        // 왼쪽 자식이 경우 swap
-        if ((((Comparable<E>)array[left]).compareTo(array[right]) > 0 &&
-                (((Comparable<E>)array[parent]).compareTo(array[left]) < 0))) {
-            swap(parent, left);
-            trickleDown(left);
         }
+
         // 오른쪽 자식이 경우 swap
-        else if((((Comparable<E>)array[parent]).compareTo(array[right]) < 0)){
+        if (array[right] != null && ((Comparable<E>) array[right]).compareTo(array[left]) > 0 &&
+                ((Comparable<E>) array[parent]).compareTo(array[right]) < 0) {
             swap(parent, right);
             trickleDown(right);
+        }
+
+        // 왼쪽 자식이 경우 swap
+        else if (array[left] != null && ((Comparable<E>) array[parent]).compareTo(array[left]) < 0) {
+            swap(parent, left);
+            trickleDown(left);
         }
     }
 
-    private void trickleDownComparator(int parent, Comparator<? super E> cmp){
-        int left = 2*parent + 1;
-        int right = 2*parent + 2;
+    private void trickleDownComparator(int parent, Comparator<? super E> cmp) {
+        int left = 2 * parent + 1;
+        int right = 2 * parent + 2;
 
-        if (left==lastPosition && cmp.compare(array[parent], array[left]) < 0){
+        if (array[left] != null && left == lastPosition && cmp.compare(array[left], array[parent]) > 0) {
             swap(parent, left);
             return;
         }
 
-        if (right==lastPosition && cmp.compare(array[parent], array[right]) < 0) {
+        if (array[right] != null && right == lastPosition && cmp.compare(array[left], array[parent]) > 0) {
             swap(parent, right);
             return;
         }
 
-        if (left >= lastPosition || right >= lastPosition)
+        if (left > lastPosition || right > lastPosition) {
             return;
+        }
 
-        if (cmp.compare(array[left], array[right]) > 0 && cmp.compare(array[parent], array[left]) < 0) {
+        if (array[right] != null && cmp.compare(array[right], array[parent]) > 0 &&
+                cmp.compare(array[right], array[left]) > 0) {
+            swap(parent, right);
+            trickleDownComparator(right, cmp);
+        } else if ((array[left] != null && cmp.compare(array[left], array[parent]) > 0)) {
             swap(parent, left);
-            trickleDown(left);
-        }
-
-        else if(cmp.compare(array[parent], array[right]) < 0){
-            swap(parent, right);
-            trickleDown(right);
+            trickleDownComparator(left, cmp);
         }
     }
 
 
     @Override
     public int size() {
-        return this.size;
+        return this.lastPosition;
     }
 }
 
