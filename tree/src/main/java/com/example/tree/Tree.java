@@ -1,8 +1,10 @@
 package com.example.tree;
 
+import java.util.TreeMap;
+
 public class Tree<E> implements TreeI<E>{
 
-    private static class Node<E> {
+    static class Node<E> {
         private E data;
         private Node <E> left, right;
         public Node(E obj) {
@@ -62,4 +64,27 @@ public class Tree<E> implements TreeI<E>{
         return currentSize;
     }
 
+    private Node<E> rightRotate(Node<E> node){
+        Node<E> tmp = node.right;
+        node.right = tmp.left;
+        tmp.left = node;
+        return tmp;
+    }
+
+    private Node<E> leftRotate (Node<E> node){
+        Node<E> tmp = node.left;
+        node.left = tmp.right;
+        tmp.right = node;
+        return tmp;
+    }
+
+    private Node<E> rightLeftRotate(Node<E> node){
+        node.right = rightRotate(node.right);
+        return leftRotate(node);
+    }
+
+    private Node<E> leftRightRotate(Node<E> node){
+        node.left = leftRotate(node.left);
+        return rightRotate(node);
+    }
 }
